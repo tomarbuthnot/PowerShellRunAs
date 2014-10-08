@@ -968,6 +968,210 @@ Function New-LocalAccountAndDesktopShortcut {
   
 } #End Function
 
+
+
+
+Function New-PowerShellScriptDesktopShortcut {
+<#
+.SYNOPSIS  
+		Synopsis goes here
+
+.DESCRIPTION  
+		Description goes here
+
+.LINK  
+    http://link.com
+                
+.NOTES  
+	Version:
+			0.8
+  
+	Author/Copyright:	 
+			Copyright Tom Arbuthnot - All Rights Reserved
+    
+	Email/Blog/Twitter:	
+			tom@tomarbuthnot.com tomtalks.uk @tomarbuthnot
+    
+	Disclaimer:   	
+			THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE RISK
+			OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
+			While these scripts are tested and working in my environment, it is recommended 
+			that you test these scripts in a test environment before using in your production 
+			environment. Tom Arbuthnot further disclaims all implied warranties including, 
+			without limitation, any implied warranties of merchantability or of fitness for 
+			a particular purpose. The entire risk arising out of the use or performance of 
+			this script and documentation remains with you. In no event shall Tom Arbuthnot, 
+			its authors, or anyone else involved in the creation, production, or delivery of 
+			this script/tool be liable for any damages whatsoever (including, without limitation, 
+			damages for loss of business profits, business interruption, loss of business 
+			information, or other pecuniary loss) arising out of the use of or inability to use 
+			the sample scripts or documentation, even if Tom Arbuthnot has been advised of 
+			the possibility of such damages.
+    
+     
+	Acknowledgements: 	
+    
+	Assumptions:	      
+			ExecutionPolicy of AllSigned (recommended), RemoteSigned or Unrestricted (not recommended)
+    
+	Limitations:		  										
+    		
+	Ideas/Wish list:
+			Detects loops based on number of log lines, this can vary, should detect based on timestamp of line 
+    
+	Rights Required:	
+
+	Known issues:	
+
+
+.EXAMPLE
+		Function-Template
+ 
+		Description
+		-----------
+		Returns Objects
+
+.EXAMPLE
+		Function-Template -Param1
+ 
+		Description
+		-----------
+		Actions Param1
+
+# Parameters
+
+.PARAMETER Param1
+		Param1 description
+
+.PARAMETER Param2
+		Param2 Description
+		
+
+#>
+  
+  
+  #############################################################
+  # Param Block
+  #############################################################
+  
+  # Sets that -Whatif and -Confirm should be allowed
+  [cmdletbinding(SupportsShouldProcess=$true)]
+  
+  Param 	(   
+    [Parameter(Mandatory=$false,
+    HelpMessage='Param2 Description')]
+    $ScriptPath = 'C:\Program Files\Internet Explorer\iexplore.exe',
+    
+    [Parameter(Mandatory=$true,
+    HelpMessage='Param2 Description')]
+    $ShortCutName,
+    
+    
+    [Parameter(Mandatory=$false,
+    HelpMessage='Error Log location, default C:\<Command Name>_ErrorLog.txt')]
+    [string]$ErrorLog = "c:\$($myinvocation.mycommand)_ErrorLog.txt",
+    [switch]$LogErrors
+    
+  ) #Close Parameters
+  
+  
+  #############################################################
+  # Begin Block
+  #############################################################
+  
+  Begin 	{
+    Write-Verbose "Starting $($myinvocation.mycommand)"
+    Write-Verbose "Error log will be $ErrorLog"
+    
+    # Script Level Variable to Stop Execution if there is an issue with any stage of the script
+    $script:EverythingOK = $true
+    
+    
+  } #Close Function Begin Block
+  
+  #############################################################
+  # Process Block
+  #############################################################
+  
+  Process {
+    
+    # First Code To Run
+    If ($script:EverythingOK)
+    {
+      Try 	
+      {
+        
+        # Build the Target String, has to be build in sections or the pareser gets confused
+        $Arguements = $null
+        # if you want to see whats going on, add -noexit
+        # [string]$TargetPathSring = ' -noexit -command "'
+        [string]$Arguements = "-ExecutionPolicy Bypass -File `"$ScriptPath`""
+        
+        $ws = New-Object -com WScript.Shell
+        $Dt = $ws.SpecialFolders.Item("Desktop")
+        $Scp = Join-Path -Path $Dt -ChildPath "$ShortCutName.lnk"
+        $Sc = $ws.CreateShortcut($Scp)
+        # $Sc.IconLocation = powershell.exe
+        $Sc.TargetPath = "powershell.exe"
+        $sc.Arguments = "$Arguements"
+        $Sc.Description = "$ShortCutName"
+        $Sc.Save()
+        
+        
+      } # Close Try Block
+      
+      Catch 	{ErrorCatch-Action} # Close Catch Block
+      
+      
+    } # Close If EverthingOK Block 1
+    
+    #############################################################
+    # Next Script Action or Try,Catch Block
+    #############################################################
+    
+    # Second Code To Run
+    If ($script:EverythingOK)
+    {
+      Try 	
+      {
+        
+        # Code Goes here
+        
+        
+      } # Close Try Block
+      
+      Catch 	{ErrorCatch-Action} # Close Catch Block
+      
+      
+    } # Close If EverthingOK Block 2
+    
+    
+  } #Close Function Process Block 
+  
+  #############################################################
+  # End Block
+  #############################################################
+  
+  End 	{
+    Write-Verbose "Ending $($myinvocation.mycommand)"
+  } #Close Function End Block
+  
+} #End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Helper Functions below this line ##########################################
 
 Function ErrorCatch-Action 
